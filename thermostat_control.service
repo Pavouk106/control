@@ -1,0 +1,14 @@
+[Unit]
+Description=Thermostat control script
+#After=thermostat_read_temps.target
+Requires=thermostat_read_temps.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/home/pi/software/thermostat
+ExecStart=/home/pi/software/thermostat/control.py
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
