@@ -4,8 +4,8 @@ Description=Thermostat read temps script
 [Service]
 Type=simple
 User=root
-WorkingDirectory=/home/pi/software/thermostat
-ExecStart=/home/pi/software/thermostat/read_temps.py
+WorkingDirectory=/home/pavouk/software/control
+ExecStart=/home/pavouk/software/control/read_temps.py
 Restart=on-failure
 
 [Install]

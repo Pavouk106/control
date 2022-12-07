@@ -6,8 +6,8 @@ Requires=thermostat_read_temps.service
 [Service]
 Type=simple
 User=root
-WorkingDirectory=/home/pi/software/thermostat
-ExecStart=/home/pi/software/thermostat/control.py
+WorkingDirectory=/home/pavouk/software/control
+ExecStart=/home/pavouk/software/control/control.py
 Restart=on-failure
 
 [Install]

@@ -1,9 +1,10 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-import os.path, datetime, time, RPIO
+import os.path, datetime, time
+import RPi.GPIO as IO
 
-debug = True
+debug = False
 
 # PRE-SETUP
 
@@ -20,13 +21,15 @@ temps_values = [None] * 8
 # 13 = not used
 # 12 = not used
 # 17 = internal thermostat (parallel)
-rpio_pins = [21, 20, 26, 16, 19, 13, 12, 17]
-rpio_values = [False] * 8
+io_pins = [21, 20, 26, 16, 19, 13, 12, 17]
+io_values = [False] * 8
 
 # Set pins to OUTPUT
-RPIO.setwarnings(False)
-for i in range(0, len(rpio_pins)):
-	RPIO.setup(rpio_pins[i], RPIO.OUT)
+IO.setwarnings(False)
+IO.setmode(IO.BCM)
+
+for i in range(0, len(io_pins)):
+	IO.setup(io_pins[i], IO.OUT)
 
 # Number of failed attempts of something (read from file, temperature reading failed, etc.)
 failed_count = 0
@@ -44,8 +47,8 @@ def debug_print(text):
 # Turn all outputs to low, cut-off control
 def fail_safe():
 	debug_print(time.strftime("%H:%M:%S") + ": " + "Fail-safe just kicked in, yo!")
-	for i in range(0, len(rpio_pins)):
-		rpio_values[i] = False # Set outputs to low (off)
+	for i in range(0, len(io_pins)):
+		io_values[i] = False # Set outputs to low (off)
 
 # Load temperatures from file
 def read_temps():
@@ -70,7 +73,7 @@ def read_temps():
 # Heat water if needed
 # TO DO: and no other conditions block this
 def heat_water():
-	global failed_count, heating_water, temps_values, rpio_values
+	global failed_count, heating_water, temps_values, io_values
 	if temps_values[4] == "---" or temps_values[4] == None: # Read failed
 		if heating_water: # Apply only if water heating is on
 			failed_count += 1 # Count failed attempts before action
@@ -82,20 +85,20 @@ def heat_water():
 		if float(temps_values[4]) <= 55 and not heating_water: # Water is cold; TO DO: and no other conditions block this action
 			heating_water = True
 			debug_print("heat_water(): " + time.strftime("%H:%M:%S") + ": Heating water on")
-			rpio_values[2] = True
-			rpio_values[7] = True
+			io_values[2] = True
+			io_values[7] = True
 		elif float(temps_values[4]) > 60 and heating_water: # Water heated; TO DO: and no othe conditions block this action
 			heating_water = False
 			debug_print("heat_water(): " + time.strftime("%H:%M:%S") + ": Heating water off")
-			rpio_values[2] = False
-			rpio_values[7] = False
+			io_values[2] = False
+			io_values[7] = False
 
 # Set all the pins to their new values
 def write_outputs():
-	global rpio_pins, rpio_values
-	debug_print("write_outputs(): " + format(rpio_values))
-	for i in range(0, len(rpio_pins)):
-		RPIO.output(rpio_pins[i], rpio_values[i])
+	global io_pins, io_values
+	debug_print("write_outputs(): " + format(io_values))
+	for i in range(0, len(io_pins)):
+		IO.output(io_pins[i], io_values[i])
 
 # MAIN LOOP
 while 1:
@@ -105,6 +108,6 @@ while 1:
 
 #	debug_print(temps_values)
 #	debug_print(time.strftime("%H:%M:%S"))
-#	debug_print(rpio_values)
+#	debug_print(io_values)
 
 	time.sleep(5)
