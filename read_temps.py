@@ -48,6 +48,9 @@ while 1:
 
 	# Write dallas temperature sensors readings to file
 	try:
+		temps_file_json = open(path_to_files + 'temps.json', 'w')
+		temps_file_json.write('{ "Teplota vody (mix)": {"teplota": "%s"}, "Teplota vody (čerpadlo)": {"teplota": "%s"}, "Teplota vody (vracečka)": {"teplota": "%s"}, "Teplota vody (kotel)": {"teplota": "%s"}, "Teplota bojleru (nahoře)": {"teplota": "%s"}, "Teplota bojleru (dole)": {"teplota": "%s"}, "Solární ohřev (teplá)": {"teplota": "%s"}, "Solární ohřev (studená)": {"teplota": "%s"}}' % (temps_values[0], temps_values[1], temps_values[2], temps_values[3], temps_values[4], temps_values[5], temps_values[6], temps_values[7]))
+		temps_file_json.close()
 		temps_file = open(path_to_files + 'temps', 'w')
 		for i in range(0, len(temps_values) + 1):
 			if i < len(temps_values) and temps_values[i] == u"---":

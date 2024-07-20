@@ -4,7 +4,7 @@
 import os.path, datetime, time
 import RPi.GPIO as IO
 
-debug = False
+debug = True
 
 # PRE-SETUP
 
@@ -68,7 +68,26 @@ def read_temps():
 		pass
 	if len(temps_values) < 8: # Read from file ok, but less than 8 lines
 		debug_print("read_temps(): Less than 8 lines loaded")
-		temps_values = ["---"] * 8
+		temps_values = ["---"] * 8 # Fill list with error string
+
+def read_states():
+	global states_values
+	try:
+		tries = 0 # Number of tries before failing
+		states_values = [None] * 4
+		while (len(states_values) < 4 or states_values[0] == None) and tries < 5: # If read didn't fail but loaded less than 4 lines
+			states_file = open(path_to_files + 'states', 'r')
+			states_values = states_file.read().splitlines() # Fill list with values
+			states_file.close()
+			tries += 1
+		debug_print("read_states(): File opened")
+	except: # Couldn't open the file (blocked by other process, file not found, etc.)
+		debug_print("read_states(): Can't open file")
+		states_values = ["---"] * 4 # Fill list with error string
+		pass
+	if len(states_values) < 4: # Read from file ok, but less than 4 lines
+		debug_print("read_states(): Less than 4 lines loaded")
+		states_values = ["---"] * 4 # Fill list with error string
 
 # Heat water if needed
 # TO DO: and no other conditions block this
@@ -87,7 +106,7 @@ def heat_water():
 			debug_print("heat_water(): " + time.strftime("%H:%M:%S") + ": Heating water on")
 			io_values[2] = True
 			io_values[7] = True
-		elif float(temps_values[4]) > 60 and heating_water: # Water heated; TO DO: and no othe conditions block this action
+		elif float(temps_values[4]) > 65 and heating_water: # Water heated; TO DO: and no othe conditions block this action
 			heating_water = False
 			debug_print("heat_water(): " + time.strftime("%H:%M:%S") + ": Heating water off")
 			io_values[2] = False
@@ -103,6 +122,7 @@ def write_outputs():
 # MAIN LOOP
 while 1:
 	read_temps()
+	read_states()
 	heat_water()
 	write_outputs()
 

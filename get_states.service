@@ -1,0 +1,13 @@
+[Unit]
+Description=Get remote states
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/home/pavouk/software/control
+ExecStart=/home/pavouk/software/control/get_states.py
+Restart=on-failure
+
+[Install]
+RequiredBy=thermostat_control.service
+WantedBy=multi-user.target
